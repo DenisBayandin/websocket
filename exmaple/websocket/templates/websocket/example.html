@@ -1,0 +1,41 @@
+    <!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Notes</title>
+</head>
+<body>
+    <h1>WebSocket Notes</h1>
+    <input id="noteInput" type="text" placeholder="Enter your note...">
+    <button onclick="createNote()">Create</button>
+    <ul id="note"></ul>
+
+    <script>
+        const noteSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/note/'
+        );
+
+        noteSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(JSON.parse(e.data));
+            const message = data['message'];
+            const note = document.getElementById('note');
+            const newMessage = document.createElement('li');
+            newMessage.textContent = message;
+            note.appendChild(newMessage);
+        };
+
+        noteSocket.onclose = function(e) {
+            console.error('Note socket closed unexpectedly');
+        };
+
+        function createNote() {
+            const noteInput = document.getElementById('noteInput');
+            const message = noteInput.value;
+            noteSocket.send(JSON.stringify({
+                'message': message
+            }));
+            noteInput.value = '';
+        }
+    </script>
+</body>
+</html>
